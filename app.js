@@ -28,6 +28,12 @@ app.post('/', (req, res) => {
   const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19);
   console.log(`\n\nWebhook received ${timestamp} in added using app dashboard url\n`);
   console.log(JSON.stringify(req.body, null, 2));
+  try {
+    const response = fetch("https://c85773aa5ff7.ngrok-free.app/worker/api/webhook/whatsapp-1.0.0/webhook-listener";
+    console.log(response.json());
+  } catch(error) {
+    console.log(error?.message || error?.response || error?.error);
+  }
   res.status(200).end();
 });
 
