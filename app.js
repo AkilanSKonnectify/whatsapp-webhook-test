@@ -29,7 +29,7 @@ app.post('/', (req, res) => {
   console.log(`\n\nWebhook received ${timestamp} in added using app dashboard url\n`);
   console.log(JSON.stringify(req.body, null, 2));
   try {
-    const response = fetch("https://3d1b766dd989.ngrok-free.app/worker/api/webhook/whatsapp-1.0.0/webhook-listener", {"method": "POST"});
+    const response = fetch("https://18568f9ff93a.ngrok-free.app/worker/api/webhook/whatsapp-1.0.0/webhook-listener", {"method": "POST"});
     console.log(response.json());
   } catch(error) {
     console.log(error?.message || error?.response || error?.error);
