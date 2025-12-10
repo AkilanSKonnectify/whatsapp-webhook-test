@@ -26,34 +26,38 @@ app.get('/', (req, res) => {
 // Route for POST requests
 app.post('/', async (req, res) => {
   const timestamp = new Date().toISOString().replace('T', ' ').slice(0, 19);
-  console.log(`\n\nWebhook received ${timestamp} in added using app dashboard url\n`);
+  console.log(`\n\nWebhook received ${timestamp} (received on root)\n`);
   console.log(JSON.stringify(req.body, null, 2));
+
+  // Example forwarding URL — update as needed
+  const forwardUrl =
+    process.env.FORWARD_URL ||
+    'https://18568f9ff93a.ngrok-free.app/worker/api/webhook/whatsapp-1.0.0/webhook-listener';
+
   try {
-    const response = fetch("https://18568f9ff93a.ngrok-free.app/worker/api/webhook/whatsapp-1.0.0/webhook-listener", {"method": "POST"});
+    const response = await fetch(forwardUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(req.body)
+    });
+
+    // try parse JSON, otherwise fallback to text
+    let forwardedResponse;
     try {
-      console.log(await response.json());
-    } catch (err) {
-      const errorText = await response.text();
-      try {
-        const errorJson = JSON.parse(errorText || "{}");
-        const errorMessage =
-          errorJson?.error ||
-          errorJson?.errors ||
-          errorJson?.description ||
-          errorJson?.message ||
-          errorText;
-        console.log( error: errorMessage, status: response?.status || 500 );
-      } catch (error: any) {
-        console.log(
-          error:
-            errorText || error?.message || error?.description || String(error),
-          status: response?.status || 500,
-        );
-      }
-  } catch(error) {
-    console.log(error?.message || error?.response || error?.error);
+      forwardedResponse = await response.json();
+    } catch (e) {
+      forwardedResponse = await response.text();
+    }
+
+    console.log('Forwarded response status:', response.status);
+    console.log('Forwarded response body:', forwardedResponse);
+
+    return res.sendStatus(200);
+  } catch (err) {
+    console.error('Error forwarding webhook:', err?.message ?? err);
+    // Still respond 200 to acknowledge receipt to original sender (change if you want different behavior)
+    return res.sendStatus(200);
   }
-  res.status(200).end();
 });
 
 // Route for GET requests
