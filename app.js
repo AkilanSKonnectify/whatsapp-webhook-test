@@ -30,7 +30,26 @@ app.post('/', (req, res) => {
   console.log(JSON.stringify(req.body, null, 2));
   try {
     const response = fetch("https://18568f9ff93a.ngrok-free.app/worker/api/webhook/whatsapp-1.0.0/webhook-listener", {"method": "POST"});
-    console.log(response.json());
+    try {
+      console.log(await response.json());
+    } catch (err) {
+      const errorText = await response.text();
+      try {
+        const errorJson = JSON.parse(errorText || "{}");
+        const errorMessage =
+          errorJson?.error ||
+          errorJson?.errors ||
+          errorJson?.description ||
+          errorJson?.message ||
+          errorText;
+        console.log( error: errorMessage, status: response?.status || 500 );
+      } catch (error: any) {
+        console.log(
+          error:
+            errorText || error?.message || error?.description || String(error),
+          status: response?.status || 500,
+        );
+      }
   } catch(error) {
     console.log(error?.message || error?.response || error?.error);
   }
